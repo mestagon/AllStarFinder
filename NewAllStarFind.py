@@ -24,7 +24,7 @@ def removeAccent( text ):
 
 # loads basketball reference link of all star dates
 def getAllStarDateDict( website, currentSeasonYear ):
-    df = pd.read_html(website)[0]    
+    df = pd.read_html(website)[1]    
     
     #removes the all star games that haven't occured yet
     df = df.dropna(subset=["Result"])
