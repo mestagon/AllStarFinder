@@ -1,0 +1,23 @@
+.navbar {
+  width: 100%;
+  position: fixed;
+  left : 0;
+}
+
+@media (min-width: 576px)
+{
+  .navbar {
+    padding-left: 20%;
+    padding-right: 20%;
+  }
+}
+
+h3 {
+  text-align: center;
+}
+
+table.sticky-header {
+  border-top: none;
+  border-bottom: none;
+  background-color: #FFF;
+}
