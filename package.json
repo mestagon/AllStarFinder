@@ -1,0 +1,28 @@
+{
+  "name": "AllStarFind",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development ./AllStarFindSite/frontend/src/index.js --output ./AllStarFindSite/frontend/static/frontend/index.js && webpack --mode development ./AllStarFindSite/frontend/src/results.js --output ./AllStarFindSite/frontend/static/frontend/results.js",
+    "build": "webpack --mode production ./AllStarFindSite/frontend/src/index.js --output ./AllStarFindSite/frontend/static/frontend/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/preset-react": "^7.7.4",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "floatthead": "^2.1.4"
+  }
+}
