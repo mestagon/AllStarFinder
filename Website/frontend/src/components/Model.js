@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import PredictionResults from "./PredictionResults";
 
-
-
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -38,7 +36,8 @@ class Model extends Component {
             PF: "",
             PTS: "",
             RenderText: "",
-            buttonDisabled: true
+            buttonDisabled: true,
+            Player: ""
         }
     }
 
@@ -100,14 +99,82 @@ class Model extends Component {
         request.send(data);
     }
 
+    handleClick = () => {
+      const {Player} = this.state;
+
+      // make new xmlhttp request
+      const request = new XMLHttpRequest();
+
+      request.open("POST", "/find");
+      
+      request.onload = () => {
+          // get prediction
+          const result = JSON.parse(request.responseText); 
+          console.log(result);
+          console.log(result["match"]);
+          
+          console.log(result["match"]["G"]);
+          if (result["match"]) {
+              this.setState({
+                  G: result["match"]["G"],
+                  GS: result["match"]["GS"],
+                  MP: result["match"]["MP"],
+                  FG: result["match"]["FG"],
+                  FGA: result["match"]["FGA"],
+                  eFG: result["match"]["eFG%"],
+                  TRB: result["match"]["TRB"],
+                  AST: result["match"]["AST"],
+                  STL: result["match"]["STL"],
+                  BLK: result["match"]["BLK"],
+                  PF: result["match"]["PF"],
+                  PTS: result["match"]["PTS"],
+                  SearchText: "Search Successful"
+              });
+          } 
+
+          
+          /*
+          const text = result.prediction === "True" ? "This player is predicted to be an all star player" : "This player is not predicted to be an all star player"
+          this.setState({
+              RenderText: text
+          })
+          */
+      }
+      
+      // send data to servers
+      const data = new FormData();
+      data.append("Player", Player);
+      
+      request.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
+      request.send(data);
+    }
+
+    updatePlayer = event => {
+        this.setState({
+            [event.target.name] : event.target.value
+        })
+    }
+
     render() {
         return (
             <div>
+              
+                <div class="input-group" style = {{width: "400px", marginBottom: "10px"}}>
+                    <input class="form-control" 
+                           placeholder = "E.g. Kobe Bryant, 2008-2009" 
+                           name = "Player" 
+                           value = {this.state.Player} 
+                           onChange = {this.updatePlayer}/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-info" style = {{marginLeft: "0px"}} onClick ={this.handleClick}>Search</button>
+                    </span>
+                </div>
+                
                 <label htmlFor = "G">
                     Games Played in Season:
                     <input 
                         name = "G" 
-                        value = {this.state.G}
+                        value = {this.state.G} 
                         onChange = {this.handleChange}
                     />
                 </label>
