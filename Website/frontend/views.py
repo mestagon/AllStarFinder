@@ -8,6 +8,10 @@ import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 import os
 import numpy as np
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core.cache import cache
+import unicodedata
+import time
 
 currDir = os.path.dirname(__file__)
 # open classifier
@@ -66,4 +70,83 @@ def predict(request):
     prediction = "True" if prediction == "True" else "False"
 
     return (JsonResponse({"prediction": prediction}))
-   
+
+@ensure_csrf_cookie
+def findPlayer(request):
+ 
+    # find what is entered in search query
+    search = request.POST.get("Player")
+    
+    search = search.lower()
+
+    # split by comma, first word should be player name and second is year
+    result = search.split(",")
+
+    name = result[0]
+    name = removeAsterik(name)
+    name = removeAccent(name)
+
+    # only want last 4 characters
+    year = result[1][-4:]
+
+    k = name + " " + year
+
+    k = k.replace(" ", "_")
+
+    match = cache.get(k)
+
+    # start_time = time.time()
+    
+    start_time = int(round(time.time() * 1000))
+          
+      # if we don't have cache then get information
+    if not match:
+        df = pd.read_html("https://www.basketball-reference.com/leagues/NBA_{}_per_game.html".format(year))
+
+        df = df[0]
+        
+        
+        # fix text to be consistent
+        df["Player"] = df["Player"].apply(removeAsterik)
+        df["Player"] = df["Player"].apply(removeAccent)
+        df["Player"] = df["Player"].str.lower()
+
+        df = df[ df["Player"] == name]
+        
+        if (len(df) == 0):
+            return JsonResponse({"error": "No Player Found"})
+
+        # get rid of dup
+        df = df.drop_duplicates(subset = "Player")
+
+        df = df[["G", "GS", "MP", "FG", "FGA", "eFG%", "TRB", "AST", "STL", "BLK", "PF", "PTS"]]
+
+        d = df.to_dict(orient = 'records')
+        
+        
+        cache.set(k, d[0], 2400)
+
+        match = d[0]
+      
+    print ("My program took", int(round(time.time() * 1000)) - start_time, "to run")
+    return JsonResponse({"match": match})
+
+# removes asterik
+def removeAsterik( string ):
+    return (string.replace("*", ""))
+
+# removes accent from characters
+def removeAccent( text ):
+    try:
+        text = unicode(text, "utf-8")
+    except NameError:
+        pass
+    
+    text = unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode("utf-8")
+    
+    return (text)
+
+def generateKey(text):
+    text = text.lower()
+    text = text + " " + "2009"
+    return text.replace(" ", "_"
